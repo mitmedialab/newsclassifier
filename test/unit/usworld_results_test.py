@@ -9,7 +9,7 @@ class USWorldResultsTest(unittest.TestCase):
       self.assertTrue(value)
     
 
-  def testLoadCSVFiles(self):
+  def testUSWorldResults(self):
     #import pdb;pdb.set_trace()
     results = USWorldResults("test/fixtures/training/")
     results.setup_evaluation("test/fixtures/evaluation/")
@@ -21,8 +21,14 @@ class USWorldResultsTest(unittest.TestCase):
     #test that the headline and content of every row is imported
     [self.preprocess_article_assertions(field, results.categories[category]["documents"]) 
       for category in results.categories for field in results.frequencies]
+
+    classifier_results = [(category, results.classifier.classify(
+                           results.extract_content_features(row["content_tokens"]))) 
+                           for row in results.eval_categories[category]["documents"] 
+                           for category in results.categories]
+
+    # get a result for every 
     import pdb; pdb.set_trace()
-    #results.classifier.classify(results.extract_content_features(results.eval_categories["sports"]["documents"][10]["content"]))
     
 
 test_common.ALL_TESTS.append(USWorldResultsTest)

@@ -7,7 +7,10 @@ import random
 
 class USWorldResults:
   def __init__(self, folder):
-    self.categories = {"sports":None, "local":None}
+    self.categories = {}
+    for category in ["sports", "local", "arts_entertainment", "usnational", "non_us_foreign", "us_foreign"]:
+      self.categories[category] = None
+
     self.category_words = {"content":[], "headline":[]}
     self.frequencies={"content":nltk.FreqDist(), "headline":nltk.FreqDist()}
 
@@ -64,8 +67,8 @@ class USWorldResults:
 
   #load evaluation dataset
   def setup_evaluation(self, folder):
-    self.eval_categories = {"sports":None, "local":None}
-    for category in self.eval_categories:
+    self.eval_categories = {}
+    for category in self.categories:
       self.eval_categories[category] = {}
       self.eval_categories[category]["documents"] = [self.load_article(row) 
         for row in csv.DictReader(open(folder + category + ".csv", "rb")) if row["answer"]=="Yes"]
