@@ -7,8 +7,9 @@ import random
 
 class USWorldResults:
   def __init__(self, folder, category_list):
+    #["sports", "local", "arts_entertainment", "usnational", "non_us_foreign", "us_foreign"]:
     self.categories = {}
-    for category in category_list: #["sports", "local", "arts_entertainment", "usnational", "non_us_foreign", "us_foreign"]:
+    for category in category_list: 
       self.categories[category] = None
 
     self.category_words = []
@@ -19,8 +20,28 @@ class USWorldResults:
       self.categories[category]["documents"] = [self.preprocess_article(row, category) 
         for row in csv.DictReader(open(folder + category + ".csv")) if row["answer"]=="Yes"]
 
-    random.shuffle(self.category_words)
     self.train_classifier()
+
+
+  @staticmethod
+  def create_training_test_datasets(input_folder, output_base_folder, category_list):
+    training = {}
+    evaluation = {}
+    for category in category_list: #["sports", "local", "arts_entertainment", "usnational", "non_us_foreign", "us_foreign"]:
+      docs = [row for row in csv.DictReader(open(input_folder + category + ".csv")) if row["answer"]=="Yes"]
+      random.shuffle(docs)
+      
+      length = len(docs)
+      cutoff = length * 3/4
+      dict_writer = csv.DictWriter(open(output_base_folder + "evaluation/" + category + ".csv", "wb"), docs[0].keys())
+      dict_writer.writer.writerow(docs[0].keys())
+      dict_writer.writerows(docs[cutoff:])
+
+      dict_writer = csv.DictWriter(open(output_base_folder + "training/" + category + ".csv", "wb"), docs[0].keys())
+      dict_writer.writer.writerow(docs[0].keys())
+      dict_writer.writerows(docs[:cutoff])
+
+
 
   #tokenize and lemmatize incoming content,
   #set up frequency distributions
