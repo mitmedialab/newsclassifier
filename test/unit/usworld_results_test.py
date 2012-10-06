@@ -4,31 +4,20 @@ from usworld_results import *
 
 class USWorldResultsTest(unittest.TestCase):
 
-  def preprocess_article_assertions(self, key, category):
-    for value in [ (key in row) for row in category]:
-      self.assertTrue(value)
-    
-
   def testUSWorldResults(self):
     #import pdb;pdb.set_trace()
-    results = USWorldResults("test/fixtures/training/")
-    results.setup_evaluation("test/fixtures/evaluation/")
+    usworld = USWorldResults("test/fixtures/mock_training/", ["love", "snow"])
+    usworld.setup_evaluation("test/fixtures/mock_evaluation/")
  
     #verify that the proper number of rows are imported
-    self.assertEqual(26, len(results.categories["sports"]["documents"]))
-    self.assertEqual(73, len(results.categories["local"]["documents"]))
- 
-    #test that the headline and content of every row is imported
-    [self.preprocess_article_assertions(field, results.categories[category]["documents"]) 
-      for category in results.categories for field in results.frequencies]
+    self.assertEqual(2, len(usworld.categories["love"]["documents"]))
+    self.assertEqual(2, len(usworld.categories["snow"]["documents"]))
 
-    classifier_results = [(category, results.classifier.classify(
-                           results.extract_content_features(row["content_tokens"]))) 
-                           for row in results.eval_categories[category]["documents"] 
-                           for category in results.categories]
+    self.assertEqual("love", usworld.classifier.classify(usworld.extract_features(["love"])))
+    self.assertEqual("snow", usworld.classifier.classify(usworld.extract_features(["snow"])))
 
-    # get a result for every 
-    import pdb; pdb.set_trace()
+    self.assertEqual("love", usworld.classifier.classify(usworld.extract_features(["love", "falling", "snow"])))
+    self.assertEqual("snow", usworld.classifier.classify(usworld.extract_features(["love", "falling", "snow", "dark"])))
     
 
 test_common.ALL_TESTS.append(USWorldResultsTest)
